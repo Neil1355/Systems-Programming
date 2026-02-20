@@ -1,0 +1,12 @@
+.venv/
+*.o
+*.a
+*.so
+*.exe
+memgrind
+memtest
+*.swp
+*.swo
+*~
+.DS_Store
+p1.tar
