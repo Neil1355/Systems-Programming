@@ -5,14 +5,27 @@ Neil Barot (nnb35)
 Hriday Adani (hva6)
 
 ## Design Overview
-[To be completed]
+Our implementation uses a single global heap array of 4096 bytes with an implicit free list structure. Each chunk contains an 8-byte header storing size and allocation status, followed by the payload. The header size field uses the least significant bit as a flag to track whether the chunk is allocated or free.
+
+Memory allocation uses a first-fit strategy, scanning from the beginning of the heap to find a free chunk large enough for the request. When a suitable chunk is found, it is split if there is enough remaining space for another chunk. All allocations are rounded up to multiples of 8 bytes to maintain alignment.
+
+Free chunks are automatically coalesced with adjacent free chunks to reduce fragmentation. When freeing memory, we check both the previous and next chunks and merge them if they are free.
 
 ## Test Plan
-[To be completed]
+Our testing strategy verifies both correctness and error detection:
+
+1. Memory allocation correctness - Verify that malloc returns non-overlapping regions
+2. Memory preservation - Ensure data written to allocated memory persists
+3. Memory deallocation - Confirm that freed memory can be reallocated
+4. Coalescing - Test that adjacent free blocks merge properly
+5. Error detection - Verify all three required error cases are caught
+6. Leak detection - Confirm leaked memory is reported at program exit
 
 ## Test Programs
-- memtest: [description]
-- memgrind: [description]
+
+memtest: Tests basic correctness by allocating 64 objects, writing distinct byte patterns to each, and verifying no corruption occurred. Takes no arguments. Returns 0 on success.
+
+memgrind: Runs 5 different workload tasks 50 times each and reports average execution time. Tasks include immediate malloc/free pairs, bulk allocation/deallocation, random allocation patterns, and fragmentation scenarios. Takes no arguments.
 
 ## Build Instructions
 make          # Build all targets

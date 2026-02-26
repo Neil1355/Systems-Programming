@@ -12,22 +12,15 @@ static union {
 
 static int initialized = 0;
 
-/*
- * Header: a single size_t (8 bytes).
- * Chunk sizes are always multiples of 8, so bit 0 is always 0 in the size.
- * We steal bit 0 as the alloc flag:
- *   bits 63..3 = chunk size
- *   bit  0     = 1 (allocated) or 0 (free)
- */
 typedef size_t Header;
 
-#define HEADER_SIZE        sizeof(Header)          /* 8 bytes */
+#define HEADER_SIZE        sizeof(Header)
 #define HDR_SIZE(h)        (*(h) & ~(size_t)0x7)
 #define HDR_ALLOC(h)       (*(h) &  (size_t)0x1)
 #define HDR_PACK(sz, al)   ((sz) | (size_t)(al))
 
 #define ROUND8(n)  (((n) + 7) & ~(size_t)7)
-#define MIN_CHUNK  (HEADER_SIZE + 8)   /* 8-byte header + 8-byte min payload */
+#define MIN_CHUNK  (HEADER_SIZE + 8)
 
 static Header *first_chunk(void) { return (Header *)heap.bytes; }
 
@@ -83,7 +76,6 @@ void myfree(void *ptr, char *file, int line) {
         fprintf(stderr, "free: Inappropriate pointer (%s:%d)\n", file, line);
         exit(2);
     }
-    /* Find the chunk whose payload == ptr */
     Header *target = NULL;
     for (Header *h = first_chunk(); in_heap(h); h = next_chunk(h)) {
         if ((char *)h + HEADER_SIZE == (char *)ptr) { target = h; break; }
@@ -92,18 +84,16 @@ void myfree(void *ptr, char *file, int line) {
         fprintf(stderr, "free: Inappropriate pointer (%s:%d)\n", file, line);
         exit(2);
     }
-    if (!HDR_ALLOC(target)) {          /* double free */
+    if (!HDR_ALLOC(target)) {
         fprintf(stderr, "free: Inappropriate pointer (%s:%d)\n", file, line);
         exit(2);
     }
     *target = HDR_PACK(HDR_SIZE(target), 0);
 
-    /* Forward coalesce */
     for (Header *nxt = next_chunk(target); in_heap(nxt) && !HDR_ALLOC(nxt);
          nxt = next_chunk(target))
         *target = HDR_PACK(HDR_SIZE(target) + HDR_SIZE(nxt), 0);
 
-    /* Backward coalesce */
     for (Header *h = first_chunk(); in_heap(h); h = next_chunk(h)) {
         Header *n = next_chunk(h);
         if (n == target && !HDR_ALLOC(h)) {
