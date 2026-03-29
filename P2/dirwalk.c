@@ -48,6 +48,7 @@ static int has_txt_suffix(const char *name) {
     return n >= 4 && strcmp(name + n - 4, ".txt") == 0;
 }
 
+/* Depth-first recursive directory traversal. */
 static int collect_recursive_impl(const char *root, FileVector *out) {
     DIR *dir = opendir(root);
     if (dir == NULL) {
