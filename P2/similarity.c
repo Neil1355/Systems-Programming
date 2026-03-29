@@ -1,32 +1,43 @@
 #include "similarity.h"
 
 #include <math.h>
+#include <string.h>
 
-/* Hriday-owned module: cosine similarity over sparse linked-list vectors. */
-
-/* Cosine similarity on sparse linked-list vectors. */
-double cosine_similarity(const WordNode *a, const WordNode *b) {
-    double dot = 0.0;
-    double mag_a = 0.0;
-    double mag_b = 0.0;
-
-    const WordNode *cur_a = a;
-    while (cur_a != NULL) {
-        int count_b = freq_get_count(b, cur_a->word);
-        dot += (double)cur_a->count * (double)count_b;
-        mag_a += (double)cur_a->count * (double)cur_a->count;
-        cur_a = cur_a->next;
-    }
-
-    const WordNode *cur_b = b;
-    while (cur_b != NULL) {
-        mag_b += (double)cur_b->count * (double)cur_b->count;
-        cur_b = cur_b->next;
-    }
-
-    if (mag_a == 0.0 || mag_b == 0.0) {
+double jensen_shannon_distance(const WordFreq *a, const WordFreq *b) {
+    if (a->total_words == 0 || b->total_words == 0) {
         return 0.0;
     }
 
-    return dot / (sqrt(mag_a) * sqrt(mag_b));
+    const WordNode *cur_a = a->head;
+    const WordNode *cur_b = b->head;
+    double kld_a = 0.0;
+    double kld_b = 0.0;
+
+    while (cur_a != NULL || cur_b != NULL) {
+        double fa = 0.0;
+        double fb = 0.0;
+
+        if (cur_b == NULL || (cur_a != NULL && strcmp(cur_a->word, cur_b->word) < 0)) {
+            fa = (double)cur_a->count / (double)a->total_words;
+            cur_a = cur_a->next;
+        } else if (cur_a == NULL || strcmp(cur_a->word, cur_b->word) > 0) {
+            fb = (double)cur_b->count / (double)b->total_words;
+            cur_b = cur_b->next;
+        } else {
+            fa = (double)cur_a->count / (double)a->total_words;
+            fb = (double)cur_b->count / (double)b->total_words;
+            cur_a = cur_a->next;
+            cur_b = cur_b->next;
+        }
+
+        double mean = 0.5 * (fa + fb);
+        if (fa > 0.0) {
+            kld_a += fa * log2(fa / mean);
+        }
+        if (fb > 0.0) {
+            kld_b += fb * log2(fb / mean);
+        }
+    }
+
+    return sqrt(0.5 * kld_a + 0.5 * kld_b);
 }

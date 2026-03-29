@@ -3,6 +3,6 @@
 
 #include "freqmap.h"
 
-double cosine_similarity(const WordNode *a, const WordNode *b);
+double jensen_shannon_distance(const WordFreq *a, const WordFreq *b);
 
 #endif

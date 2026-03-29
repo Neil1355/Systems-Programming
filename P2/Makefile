@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror -std=c11 -g
-TARGET = p2compare
+TARGET = compare
 SRCS = p2compare.c dirwalk.c freqmap.c similarity.c
 
 all: $(TARGET)

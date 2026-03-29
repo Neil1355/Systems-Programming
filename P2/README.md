@@ -1,102 +1,104 @@
-# Project 2: File Similarity
+# Project 2 - File Similarity (JSD)
 
-## Authors
-Neil Barot (nnb35)
+## Partners
+Neil Barot (nnb35)  
 Hriday Adani (hva62)
 
-## Overview
-This program compares text files by cosine similarity of word-frequency distributions.
-It performs the required project tasks:
-1. Reads files word-by-word.
-2. Recursively traverses a directory.
-3. Builds a data structure for word frequencies.
-
-## Work Split (Neil + Hriday)
-We split the project roughly in half by module so we could work in parallel and then integrate.
-
-Neil worked mainly on:
-1. Directory traversal and file collection logic.
-2. Main program flow and pairwise comparison loop.
-3. Output formatting and deterministic file ordering.
-
-Hriday worked mainly on:
-1. Word normalization and frequency-map construction.
-2. Frequency lookup logic for sparse linked-list storage.
-3. Cosine similarity computation.
-
-Both of us reviewed final integration together and matched interfaces across files.
-
-## Build and Run (Linux / iLab)
+## How to Build and Run
 ```bash
 make
-./p2compare <directory>
+./compare <file-or-directory> [file-or-directory ...]
 make clean
 ```
 
 Example:
 ```bash
-./p2compare ./sample_data
+./compare sample/input.txt sample_dir
 ```
 
-## Output
-For each unique pair of `.txt` files:
-```text
-<similarity>  <fileA>  <fileB>
-```
+## What We Built
+Our program takes a mix of files and directories, builds a word-frequency distribution for each collected file, and then prints the Jensen-Shannon distance for every unordered pair.
 
-Similarity value is printed with 6 decimal places.
+Main behavior matches the assignment spec:
+- Any file argument is included directly.
+- Any directory argument is traversed recursively and only `.txt` files from that traversal are included.
+- Names starting with `.` are skipped during traversal.
+- Pair results are sorted by decreasing combined word count.
 
-## Design
+## Work Split
+We split this by module and then cross-tested each other’s code.
 
-### `p2compare.c`
-- Validates input arguments.
-- Collects files recursively.
-- Sorts file paths for deterministic output.
-- Compares all file pairs and prints results.
+Neil focused mostly on:
+- argument handling and collection phase flow,
+- directory traversal + path collection,
+- pair generation/sorting + output formatting.
 
-### `dirwalk.c` / `dirwalk.h`
-- Uses `opendir/readdir/stat` for recursive traversal.
-- Collects only `.txt` files.
-- Stores file paths in a dynamic array (`FileVector`).
+Hriday focused mostly on:
+- tokenization and word-frequency map construction,
+- dynamic word storage and normalization,
+- JSD math implementation and validation.
 
-### `freqmap.c` / `freqmap.h`
-- Reads tokens using `fscanf("%s")`.
-- Normalizes tokens by keeping only alphanumeric characters and converting to lowercase.
-- Stores frequencies in a linked list (`WordNode`).
+We reviewed integration together and tested edge cases jointly.
 
-### `similarity.c` / `similarity.h`
-- Computes cosine similarity:
+## Design Notes
+Data structures used:
+- `FileVector`: dynamic array of unique file paths.
+- `WordFreq`: total word count + sorted linked list of `WordNode` (`word`, `count`).
+- `Comparison`: pair of paths, combined word count, and JSD value.
 
-$$
-	ext{sim}(A, B) = \frac{A \cdot B}{\lVert A \rVert_2 \cdot \lVert B \rVert_2}
-$$
+Tokenization details:
+- Uses POSIX `open()`, `read()`, `close()`.
+- Reads buffered chunks; no fixed max file size assumption.
+- Words are separated by whitespace.
+- Valid word characters are letters, digits, and `-`.
+- Other punctuation is ignored.
+- Case-insensitive handling by lowercasing.
+- Word memory is dynamically allocated (no hard max word length).
 
-- Returns `0.0` if either file has no valid tokens.
+JSD details:
+- For each pair, computes distributions $F_1$ and $F_2$, mean distribution $M$, then:
+- $KLD(F_1 || M)$ and $KLD(F_2 || M)$
+- $JSD(F_1 || F_2) = \sqrt{0.5 \cdot KLD(F_1 || M) + 0.5 \cdot KLD(F_2 || M)}$
+- Uses simultaneous iteration over sorted word lists for the union of terms.
 
-## Complexity
-- Directory traversal: $O(D + F)$ where $D$ = directories and $F$ = files.
-- Frequency build (linked list): worst-case $O(T \cdot U)$.
-  Here $T$ = tokens and $U$ = unique tokens.
-- Pair similarity: worst-case $O(U_A \cdot U_B)$ using linear lookup.
+Error handling:
+- `stat/open/read` failures are reported with `perror(path)` and processing continues.
+- If any recoverable I/O errors occurred, program exits with `EXIT_FAILURE` after finishing.
+- Allocation failures are treated as fatal and exit after cleanup.
+- Fewer than two readable files -> error + `EXIT_FAILURE`.
 
-## Error Handling
-- Invalid arguments: prints usage and exits.
-- Unreadable directories/files: prints clear error.
-- Allocation failures: exits safely via existing cleanup paths.
-- Less than 2 text files: prints message and exits.
+## Testing Plan
+All testing was done on iLab Linux.
 
-## Final Note
-This code is intentionally written in a straightforward style for a systems programming class: simple modules, explicit memory management, and clear control flow.
+1. Build checks
+- `make clean && make`
+- Verified clean compile with `-Wall -Wextra -Werror -std=c11`.
 
-## Files Included
-- `AUTHOR`
-- `Makefile`
-- `README.md`
-- `p2compare.c`
-- `dirwalk.c`
-- `dirwalk.h`
-- `freqmap.c`
-- `freqmap.h`
-- `similarity.c`
-- `similarity.h`
-- `p2.pdf`
+2. Interface checks
+- No arguments prints usage and exits non-zero.
+- Mixed inputs (file + directory + nested directory) run correctly.
+
+3. Traversal checks
+- Recursive `.txt` discovery works.
+- Explicit non-`.txt` file args are still included.
+- Hidden files and directories are skipped.
+- Duplicate paths are not added twice.
+
+4. Tokenization checks
+- Case-insensitive normalization works.
+- Hyphenated words stay intact.
+- Punctuation is ignored according to spec.
+- Numeric tokens are retained.
+
+5. Correctness checks (JSD)
+- Identical files produce near-zero distance.
+- Different vocabularies produce higher distance.
+- Checked sample-sized hand calculations for sanity.
+
+6. Output ordering checks
+- Comparisons sorted by decreasing combined word count.
+- Tie ordering is deterministic by path compare.
+
+7. Memory checks
+- Ran valgrind leak/error checks.
+- Confirmed no leaks and no invalid memory accesses in tested cases.
