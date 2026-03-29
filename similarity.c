@@ -2,6 +2,8 @@
 
 #include <math.h>
 
+/* Hriday-owned module: cosine similarity over sparse linked-list vectors. */
+
 /* Cosine similarity on sparse linked-list vectors. */
 double cosine_similarity(const WordNode *a, const WordNode *b) {
     double dot = 0.0;

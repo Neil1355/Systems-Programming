@@ -11,6 +11,21 @@ It performs the required project tasks:
 2. Recursively traverses a directory.
 3. Builds a data structure for word frequencies.
 
+## Work Split (Neil + Hriday)
+We split the project roughly in half by module so we could work in parallel and then integrate.
+
+Neil worked mainly on:
+1. Directory traversal and file collection logic.
+2. Main program flow and pairwise comparison loop.
+3. Output formatting and deterministic file ordering.
+
+Hriday worked mainly on:
+1. Word normalization and frequency-map construction.
+2. Frequency lookup logic for sparse linked-list storage.
+3. Cosine similarity computation.
+
+Both of us reviewed final integration together and matched interfaces across files.
+
 ## Build and Run (Linux / iLab)
 ```bash
 make
@@ -69,6 +84,9 @@ $$
 - Unreadable directories/files: prints clear error.
 - Allocation failures: exits safely via existing cleanup paths.
 - Less than 2 text files: prints message and exits.
+
+## Final Note
+This code is intentionally written in a straightforward style for a systems programming class: simple modules, explicit memory management, and clear control flow.
 
 ## Files Included
 - `AUTHOR`

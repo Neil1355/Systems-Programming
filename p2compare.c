@@ -6,6 +6,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+/*
+ * Main integration file.
+ * Neil: argument handling, file ordering, and pairwise comparison flow.
+ * Hriday: map + similarity APIs consumed from freqmap/similarity modules.
+ */
+
 /* Keep pair output stable across runs and machines. */
 static int cmp_paths(const void *a, const void *b) {
     const char *const *pa = (const char *const *)a;
