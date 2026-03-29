@@ -6,6 +6,8 @@
 #include <string.h>
 #include <sys/stat.h>
 
+/* Neil-owned module: recursive directory walk and file path collection. */
+
 void filevec_init(FileVector *v) {
     v->items = NULL;
     v->len = 0;

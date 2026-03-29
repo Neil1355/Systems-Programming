@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* Hriday-owned module: token normalization and word-frequency map logic. */
+
 /* Keep only alphanumeric characters and lowercase them. */
 static int normalize_token(const char *raw, char *out, size_t out_size) {
     size_t j = 0;
