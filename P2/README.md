@@ -2,7 +2,7 @@
 
 ## Partners
 Neil Barot (nnb35)  
-Hriday Adani (hva62)
+Hriday Adani (hva6)
 
 ## How to Build and Run
 ```bash
