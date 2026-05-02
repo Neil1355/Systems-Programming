@@ -10,8 +10,12 @@ make
 Run
 ./chatd <port>
 
+What We Built
+We implemented a simple chat server in C that accepts client connections, handles screen names, forwards public and private messages, supports status updates, and answers WHO queries.
+We used a select-based event loop so one server process can manage multiple connected clients at once.
+
 Test Plan
-The server was tested with a mix of protocol-level and behavior-level checks.
+We tested the server with a mix of protocol-level and behavior-level checks.
 
 1. Name handling
    valid names, duplicate names, illegal characters, and names that are too long
@@ -27,10 +31,8 @@ The server was tested with a mix of protocol-level and behavior-level checks.
    login first, multiple clients at once, and disconnecting clients
 
 Notes on testing
-The supplied client and raw binaries from clients.tar are meant for iLab/Linux testing. On the lab machines, client can be used for normal chat flows and raw can be used to send exact protocol frames and check error handling.
+We used the supplied client and raw binaries from clients.tar for lab-style testing. On the lab machines, client can be used for normal chat flows and raw can be used to send exact protocol frames and check error handling.
 
-Submission contents
-chatd.c - server implementation
-Makefile - build file
-AUTHOR - partner NetIDs only
-README - this file
+Implementation Notes
+We kept the submission focused on the required pieces: the server source, the Makefile, the AUTHOR file, and this README.
+
