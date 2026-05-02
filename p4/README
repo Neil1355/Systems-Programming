@@ -1,36 +1,36 @@
-## P4: Simple Chat Server
+P4: Simple Chat Server
 
-### Authors
+Authors
 Neil Barot (nnb35)
 Hriday Adani (hva6)
 
-### Build
+Build
 make
 
-### Run
+Run
 ./chatd <port>
 
-### Test Plan
+Test Plan
 The server was tested with a mix of protocol-level and behavior-level checks.
 
 1. Name handling
-    - valid names, duplicate names, illegal characters, and names that are too long
+   valid names, duplicate names, illegal characters, and names that are too long
 2. Status updates
-    - empty status, normal status, illegal characters, and status strings that are too long
+   empty status, normal status, illegal characters, and status strings that are too long
 3. Public and private messaging
-    - broadcast to #all, private delivery to one user, and unknown recipients
+   broadcast to #all, private delivery to one user, and unknown recipients
 4. WHO queries
-    - single-user lookups, room-wide lookups, and unknown users
+   single-user lookups, room-wide lookups, and unknown users
 5. Protocol errors
-    - malformed headers, unknown message types, bad lengths, and missing separators
+   malformed headers, unknown message types, bad lengths, and missing separators
 6. Connection behavior
-    - login first, multiple clients at once, and disconnecting clients
+   login first, multiple clients at once, and disconnecting clients
 
-### Notes on testing
-The supplied `client` and `raw` binaries from `clients.tar` are meant for iLab/Linux testing. On the lab machines, `client` can be used for normal chat flows and `raw` can be used to send exact protocol frames and check error handling.
+Notes on testing
+The supplied client and raw binaries from clients.tar are meant for iLab/Linux testing. On the lab machines, client can be used for normal chat flows and raw can be used to send exact protocol frames and check error handling.
 
-### Submission contents
-- `chatd.c` - server implementation
-- `Makefile` - build file
-- `AUTHOR` - partner NetIDs only
-- `README` - this file
+Submission contents
+chatd.c - server implementation
+Makefile - build file
+AUTHOR - partner NetIDs only
+README - this file
