@@ -1,26 +1,36 @@
-This archive contains two programs for use on the iLab.
+## P4: Simple Chat Server
 
-client - a sample client demonstrating a possible user agent
-raw - a test client that allows you to send raw protocol messages and 
-      observe the respose from your server
+### Authors
+Neil Barot (nnb35)
+Hriday Adani (hva6)
 
+### Build
+make
 
-Usage:
-    client <name> <host> <port>
+### Run
+./chatd <port>
 
-Will connect to the chat server at host:port and attempt to join the chat
-using the given name. (We rely on the server to validate names.)
+### Test Plan
+The server was tested with a mix of protocol-level and behavior-level checks.
 
-Once running, client will print incoming messages from the server, using
-formatting and indentation to distinguish (1) messages sent by the
-server itself, (2) private messages from other users, (3) general messages
-sent by other users, and (4) errors sent by the server.
+1. Name handling
+    - valid names, duplicate names, illegal characters, and names that are too long
+2. Status updates
+    - empty status, normal status, illegal characters, and status strings that are too long
+3. Public and private messaging
+    - broadcast to #all, private delivery to one user, and unknown recipients
+4. WHO queries
+    - single-user lookups, room-wide lookups, and unknown users
+5. Protocol errors
+    - malformed headers, unknown message types, bad lengths, and missing separators
+6. Connection behavior
+    - login first, multiple clients at once, and disconnecting clients
 
-To send a regular message, type it and press enter.
+### Notes on testing
+The supplied `client` and `raw` binaries from `clients.tar` are meant for iLab/Linux testing. On the lab machines, `client` can be used for normal chat flows and `raw` can be used to send exact protocol frames and check error handling.
 
-To set your status, type /<status>
-
-To query all users and their statuses, type ?
-To query a specific user, type ?<name>
-
-To send a private message to a user, type @<name> <message>
+### Submission contents
+- `chatd.c` - server implementation
+- `Makefile` - build file
+- `AUTHOR` - partner NetIDs only
+- `README` - this file
